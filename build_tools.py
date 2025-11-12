@@ -2,39 +2,61 @@ import requests
 from pydantic import BaseModel, Field, create_model
 from langchain_core.tools import StructuredTool
 
+DEFAULT_HEADERS = {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+    "User-Agent": "DynamicToolAgent/1.0"
+}
+
 def build_tool_from_json(tool_data: dict) -> StructuredTool:
     """
     Dynamically build a StructuredTool from JSON metadata.
     """
 
-    # 1️⃣ Build input schema
+    # 1️⃣ Build input schema dynamically
     DynamicSchema = create_model(
         f"{tool_data['tool_name']}Input",
         **{k: (eval(v), Field(...)) for k, v in tool_data["args_schema"].items()},
         __base__=BaseModel
     )
 
-    # 2️⃣ Build dynamic function
+    # 2️⃣ Build dynamic API-calling function
     def dynamic_func(**kwargs):
         url = tool_data["api_url"].format(**kwargs)
+        headers = DEFAULT_HEADERS.copy()
+
+        # Add optional headers (like Authorization)
+        if "optional_headers" in tool_data:
+            for k, v in tool_data["optional_headers"].items():
+                headers[k] = v
+
         try:
-            response = requests.get(url)
+            response = requests.get(url, headers=headers)
             response.raise_for_status()
             return {
                 "status": "success",
-                "message": f"Fetched {kwargs}",
-                "products": [response.json()]
+                "message": f"Fetched data using {kwargs}",
+                "data": response.json()
             }
         except requests.HTTPError:
-            return {"status": "failed", "message": f"Product {kwargs} not found", "products": []}
+            return {
+                "status": "failed",
+                "message": f"Request failed for {kwargs}",
+                "data": []
+            }
         except Exception as e:
-            return {"status": "failed", "message": str(e), "products": []}
+            return {
+                "status": "failed",
+                "message": str(e),
+                "data": []
+            }
 
-    # 3️⃣ Build the StructuredTool
-    tool = StructuredTool.from_function(
-        func=dynamic_func,
+    # 3️⃣ Create a uniquely named StructuredTool
+    tool = StructuredTool(
+        name=tool_data["tool_name"],  # ✅ unique name
+        description=tool_data["description"],
         args_schema=DynamicSchema,
-        description=tool_data["description"]
+        func=dynamic_func
     )
 
     return tool
