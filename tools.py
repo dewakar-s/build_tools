@@ -1,4 +1,5 @@
 tool_list = [
+  # ---------- GET TOOLS ----------
   {
     "tool_name": "product_fetch_tool_dummyjson",
     "description": "Fetch a single product by ID from DummyJSON API.",
@@ -86,5 +87,92 @@ tool_list = [
     "api_url": "https://dummyjson.com/products/search?q={query}&limit={limit}&skip={skip}",
     "optional_headers": {"Content-Type": "application/json", "User-Agent": "DynamicToolAgent/1.0"},
     "method": "GET"
+  },
+
+  # ---------- POST TOOLS ----------
+  {
+    "tool_name": "create_user_tool_reqres",
+    "description": "Create a new user using ReqRes API.",
+    "args_schema": {"name": "str", "job": "str"},
+    "api_url": "https://reqres.in/api/users",
+    "optional_headers": {"Content-Type": "application/json"},
+    "method": "POST"
+  },
+  {
+    "tool_name": "create_post_tool_jsonplaceholder",
+    "description": "Create a new post using JSONPlaceholder.",
+    "args_schema": {"title": "str", "body": "str", "userId": "int"},
+    "api_url": "https://jsonplaceholder.typicode.com/posts",
+    "optional_headers": {"Content-Type": "application/json"},
+    "method": "POST"
+  },
+  {
+    "tool_name": "add_product_tool_dummyjson",
+    "description": "Add a new product to DummyJSON API.",
+    "args_schema": {"title": "str", "price": "int", "category": "str"},
+    "api_url": "https://dummyjson.com/products/add",
+    "optional_headers": {"Content-Type": "application/json"},
+    "method": "POST"
+  },
+  {
+    "tool_name": "create_comment_tool_jsonplaceholder",
+    "description": "Add a comment to a post using JSONPlaceholder.",
+    "args_schema": {"postId": "int", "name": "str", "email": "str", "body": "str"},
+    "api_url": "https://jsonplaceholder.typicode.com/comments",
+    "optional_headers": {"Content-Type": "application/json"},
+    "method": "POST"
+  },
+
+  # ---------- PUT TOOLS ----------
+  {
+    "tool_name": "update_user_tool_reqres",
+    "description": "Update user details using ReqRes API.",
+    "args_schema": {"user_id": "int", "name": "str", "job": "str"},
+    "api_url": "https://reqres.in/api/users/{user_id}",
+    "optional_headers": {"Content-Type": "application/json"},
+    "method": "PUT"
+  },
+  {
+    "tool_name": "update_post_tool_jsonplaceholder",
+    "description": "Update an existing post using JSONPlaceholder.",
+    "args_schema": {"post_id": "int", "title": "str", "body": "str", "userId": "int"},
+    "api_url": "https://jsonplaceholder.typicode.com/posts/{post_id}",
+    "optional_headers": {"Content-Type": "application/json"},
+    "method": "PUT"
+  },
+  {
+    "tool_name": "update_product_tool_dummyjson",
+    "description": "Update product details by ID in DummyJSON API.",
+    "args_schema": {"product_id": "int", "title": "str", "price": "int"},
+    "api_url": "https://dummyjson.com/products/{product_id}",
+    "optional_headers": {"Content-Type": "application/json"},
+    "method": "PUT"
+  },
+
+  # ---------- DELETE TOOLS ----------
+  {
+    "tool_name": "delete_user_tool_reqres",
+    "description": "Delete a user by ID using ReqRes API.",
+    "args_schema": {"user_id": "int"},
+    "api_url": "https://reqres.in/api/users/{user_id}",
+    "optional_headers": {},
+    "method": "DELETE"
+  },
+  {
+    "tool_name": "delete_post_tool_jsonplaceholder",
+    "description": "Delete a post by ID using JSONPlaceholder.",
+    "args_schema": {"post_id": "int"},
+    "api_url": "https://jsonplaceholder.typicode.com/posts/{post_id}",
+    "optional_headers": {},
+    "method": "DELETE"
+  },
+  {
+    "tool_name": "delete_product_tool_dummyjson",
+    "description": "Delete a product by ID using DummyJSON API.",
+    "args_schema": {"product_id": "int"},
+    "api_url": "https://dummyjson.com/products/{product_id}",
+    "optional_headers": {},
+    "method": "DELETE"
   }
 ]
+
