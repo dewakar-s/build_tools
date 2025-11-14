@@ -10,37 +10,59 @@ DEFAULT_HEADERS = {
 
 def build_tool_from_json(tool_data: dict) -> StructuredTool:
     """
-    Dynamically build a StructuredTool from JSON metadata
-    supporting GET, POST, PUT, DELETE methods.
+    Build a StructuredTool from MongoDB-style JSON.
     """
 
-    # 1️⃣ Build input schema dynamically
+    print("Building tool:", tool_data.get("name"))
+
+    # -------------------------------
+    # 1️⃣ Convert parameters (list → dict)
+    # -------------------------------
+    params_dict = {}
+
+    for p in tool_data.get("parameters", []):
+        field_name = p.get("name")
+        field_type = p.get("type", "str")
+        python_type = eval(field_type)  # safe since types are basic
+        
+        params_dict[field_name] = (python_type, Field(...))
+
     DynamicSchema = create_model(
-        f"{tool_data['tool_name']}Input",
-        **{k: (eval(v), Field(...)) for k, v in tool_data["args_schema"].items()},
+        f"{tool_data['name']}Input",
+        **params_dict,
         __base__=BaseModel
     )
 
-    # 2️⃣ Build dynamic API-calling function
-    def dynamic_func(**kwargs):
-        method = tool_data.get("method", "GET").upper()
-        url = tool_data["api_url"].format(**kwargs)
-        headers = DEFAULT_HEADERS.copy()
+    # -------------------------------
+    # 2️⃣ Convert headers list → dict
+    # -------------------------------
+    extra_headers = {}
+    for h in tool_data.get("headers", []):
+        extra_headers[h["key"]] = h["value"]
 
-        # Add optional headers
-        if "optional_headers" in tool_data:
-            for k, v in tool_data["optional_headers"].items():
-                headers[k] = v
+    # -------------------------------
+    # 3️⃣ Dynamic API-call function
+    # -------------------------------
+    def dynamic_func(**kwargs):
+        method = tool_data.get("httpMethod", "GET").upper()
+        url = tool_data.get("url", "").format(**kwargs)
+
+        headers = DEFAULT_HEADERS.copy()
+        headers.update(extra_headers)
 
         try:
             if method == "GET":
                 response = requests.get(url, headers=headers, params=kwargs)
+
             elif method == "POST":
                 response = requests.post(url, headers=headers, json=kwargs)
+
             elif method == "PUT":
                 response = requests.put(url, headers=headers, json=kwargs)
+
             elif method == "DELETE":
                 response = requests.delete(url, headers=headers, json=kwargs)
+
             else:
                 return {
                     "status": "failed",
@@ -49,18 +71,13 @@ def build_tool_from_json(tool_data: dict) -> StructuredTool:
                 }
 
             response.raise_for_status()
+
             return {
                 "status": "success",
-                "message": f"Fetched data using {kwargs}",
+                "message": f"Success {kwargs}",
                 "data": response.json() if response.content else {}
             }
 
-        except requests.HTTPError as e:
-            return {
-                "status": "failed",
-                "message": f"Request failed for {kwargs}: {str(e)}",
-                "data": []
-            }
         except Exception as e:
             return {
                 "status": "failed",
@@ -68,13 +85,14 @@ def build_tool_from_json(tool_data: dict) -> StructuredTool:
                 "data": []
             }
 
-    # 3️⃣ Create a uniquely named StructuredTool
+    # -------------------------------
+    # 4️⃣ Build Tool
+    # -------------------------------
     tool = StructuredTool(
-        name=tool_data["tool_name"],
-        description=tool_data["description"],
+        name=tool_data["_id"],  
+        description=tool_data.get("description", ""),
         args_schema=DynamicSchema,
         func=dynamic_func
     )
 
     return tool
-

@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 from langchain_openai import AzureChatOpenAI 
 from langchain.agents import create_agent
+from mongodb import list_of_actions
 
 load_dotenv()
 # JSON directly as a dictionary for demonstration
@@ -33,11 +34,12 @@ except Exception as e:
     print("Hint: Please check endpoint, deployment name, and API_VERSION in Azure portal.")
     exit()
 
-tool = build_tool_from_json(tool_list[0])
+list_of_actions = list_of_actions or []
 
-
-actions_tools = [build_tool_from_json(action) for action in (tool_list or []) if action is not None]
+for action in list_of_actions:
+    actions_tools = [build_tool_from_json(action) for action in list_of_actions]
 # User input only
+print(actions_tools)
 agent = create_agent(
     model=llm,
     tools=actions_tools,
@@ -58,9 +60,11 @@ agent = create_agent(
     ),
 )
 
+# print(agent.invoke({
+#     "messages": [
+#         {"role": "user", "content": "Delete user_id 2 from ReqRes API"}
+#     ]
+# }))
 
-result = tool.run({"product_id": 3})
-print(agent.invoke({"messages": [{"role": "user", "content": "Search products for phone with limit 3 and skip 2"}]})
-)
 
 

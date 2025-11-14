@@ -42,12 +42,12 @@ tool_list = [
   },
   {
     "tool_name": "user_list_tool_reqres",
-    "description": "Fetch a paginated list of users from ReqRes API (requires token).",
+    "description": "Fetch a paginated list of users from ReqRes API using x-api-key.",
     "args_schema": {"page": "int"},
     "api_url": "https://reqres.in/api/users?page={page}",
-    "optional_headers": {"Authorization": "Bearer <token>"},
+    "optional_headers": {"x-api-key": "reqres-free-v1"},
     "method": "GET"
-  },
+},
   {
     "tool_name": "user_fetch_tool_gorest",
     "description": "Fetch a list of users from GoREST API (requires Bearer token).",
@@ -84,7 +84,7 @@ tool_list = [
     "tool_name": "product_search_tool_dummyjson",
     "description": "Search products by name with pagination using DummyJSON API.",
     "args_schema": {"query": "str", "limit": "int", "skip": "int"},
-    "api_url": "https://dummyjson.com/products/search?q={query}&limit={limit}&skip={skip}",
+    "api_url": "https://dummyjson.com/products/search",
     "optional_headers": {"Content-Type": "application/json", "User-Agent": "DynamicToolAgent/1.0"},
     "method": "GET"
   },
@@ -95,9 +95,14 @@ tool_list = [
     "description": "Create a new user using ReqRes API.",
     "args_schema": {"name": "str", "job": "str"},
     "api_url": "https://reqres.in/api/users",
-    "optional_headers": {"Content-Type": "application/json"},
+    "optional_headers": {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "x-api-key": "reqres-free-v1"
+    },
     "method": "POST"
   },
+
   {
     "tool_name": "create_post_tool_jsonplaceholder",
     "description": "Create a new post using JSONPlaceholder.",
@@ -129,7 +134,10 @@ tool_list = [
     "description": "Update user details using ReqRes API.",
     "args_schema": {"user_id": "int", "name": "str", "job": "str"},
     "api_url": "https://reqres.in/api/users/{user_id}",
-    "optional_headers": {"Content-Type": "application/json"},
+    "optional_headers": {
+      "Content-Type": "application/json",
+      "x-api-key": "reqres-free-v1"
+    },
     "method": "PUT"
   },
   {
@@ -150,12 +158,12 @@ tool_list = [
   },
 
   # ---------- DELETE TOOLS ----------
-  {
+   {
     "tool_name": "delete_user_tool_reqres",
     "description": "Delete a user by ID using ReqRes API.",
     "args_schema": {"user_id": "int"},
     "api_url": "https://reqres.in/api/users/{user_id}",
-    "optional_headers": {},
+    "optional_headers": {"x-api-key": "reqres-free-v1"},
     "method": "DELETE"
   },
   {
