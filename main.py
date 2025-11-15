@@ -5,6 +5,9 @@ import os
 from langchain_openai import AzureChatOpenAI 
 from langchain.agents import create_agent
 from mongodb import list_of_actions
+from bson.binary import Binary
+import base64
+from mongodb import get_actions_collection
 
 load_dotenv()
 # JSON directly as a dictionary for demonstration
@@ -34,15 +37,22 @@ except Exception as e:
     print("Hint: Please check endpoint, deployment name, and API_VERSION in Azure portal.")
     exit()
 
-list_of_actions = list_of_actions or []
+def create_tool_retriever(tenant_id):
+    pre_filter_query = {"tenantId": tenant_id}  # correct field
+    collection = get_actions_collection()
+    tool_docs = list(collection.find(pre_filter_query))
+    return [build_tool_from_json(doc) for doc in tool_docs]
 
-for action in list_of_actions:
-    actions_tools = [build_tool_from_json(action) for action in list_of_actions]
+actions_retrived = create_tool_retriever(
+    tenant_id="Binary.createFromBase64('lUNPQNrZY0J/nc79yLJhlQ==', 3)"
+)
+
+
 # User input only
-print(actions_tools)
+print(actions_retrived)
 agent = create_agent(
     model=llm,
-    tools=actions_tools,
+    tools=actions_retrived,
     system_prompt=(
         "You are an intelligent API orchestration agent. "
         "Your job is to understand the user's natural language requests, "

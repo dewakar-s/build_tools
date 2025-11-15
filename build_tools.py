@@ -1,20 +1,25 @@
 import requests
 from pydantic import BaseModel, Field, create_model
 from langchain_core.tools import StructuredTool
+import re 
 
 DEFAULT_HEADERS = {
     "Content-Type": "application/json",
     "Accept": "application/json",
     "User-Agent": "DynamicToolAgent/1.0"
 }
+def sanitize_tool_name(name: str) -> str:
+    """Replace invalid characters with underscore."""
+    return re.sub(r'[^a-zA-Z0-9_\.-]', '_', name)
 
 def build_tool_from_json(tool_data: dict) -> StructuredTool:
     """
     Build a StructuredTool from MongoDB-style JSON.
     """
 
-    print("Building tool:", tool_data.get("name"))
-
+    
+    tool_name = sanitize_tool_name(tool_data['name'])
+    print("Building tool:", tool_name)
     # -------------------------------
     # 1️⃣ Convert parameters (list → dict)
     # -------------------------------
@@ -89,7 +94,7 @@ def build_tool_from_json(tool_data: dict) -> StructuredTool:
     # 4️⃣ Build Tool
     # -------------------------------
     tool = StructuredTool(
-        name=tool_data["_id"],  
+        name=tool_name,  
         description=tool_data.get("description", ""),
         args_schema=DynamicSchema,
         func=dynamic_func
