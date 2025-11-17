@@ -1,12 +1,8 @@
-from build_tools import build_tool_from_json
-from tools import tool_list    
+from build_tools import build_tool_from_json  
 from dotenv import load_dotenv
 import os
 from langchain_openai import AzureChatOpenAI 
 from langchain.agents import create_agent
-from mongodb import list_of_actions
-from bson.binary import Binary
-import base64
 from mongodb import get_actions_collection
 
 load_dotenv()
@@ -37,19 +33,29 @@ except Exception as e:
     print("Hint: Please check endpoint, deployment name, and API_VERSION in Azure portal.")
     exit()
 
-def create_tool_retriever(tenant_id):
-    pre_filter_query = {"tenantId": tenant_id}  # correct field
+from uuid import UUID
+from build_tools import build_tool_from_json
+from mongodb import get_actions_collection
+
+def create_tool_retriever(tenant_id_input: str):
+    # 1️⃣ Convert tenant input → proper UUID()
+    tenant_uuid = UUID(tenant_id_input)
+
+    # 2️⃣ Correct MongoDB query
+    pre_filter_query = {"tenantId": tenant_uuid}
+
+    # 3️⃣ Fetch and convert tools
     collection = get_actions_collection()
     tool_docs = list(collection.find(pre_filter_query))
+    
     return [build_tool_from_json(doc) for doc in tool_docs]
 
+
+# 🔥 You only give the tenantId string here
 actions_retrived = create_tool_retriever(
-    tenant_id="Binary.createFromBase64('lUNPQNrZY0J/nc79yLJhlQ==', 3)"
+    "021ee120-7cc2-4f78-9ff5-db9e785c0118"
 )
 
-
-# User input only
-print(actions_retrived)
 agent = create_agent(
     model=llm,
     tools=actions_retrived,
@@ -70,11 +76,11 @@ agent = create_agent(
     ),
 )
 
-# print(agent.invoke({
-#     "messages": [
-#         {"role": "user", "content": "Delete user_id 2 from ReqRes API"}
-#     ]
-# }))
+print(agent.invoke({
+    "messages": [
+        {"role": "user", "content": "Fetch post 10 from jsonplaceholder"}
+    ]
+}))
 
 
 

@@ -48,46 +48,6 @@ tool_list = [
     "optional_headers": {"x-api-key": "reqres-free-v1"},
     "method": "GET"
 },
-  {
-    "tool_name": "user_fetch_tool_gorest",
-    "description": "Fetch a list of users from GoREST API (requires Bearer token).",
-    "args_schema": {},
-    "api_url": "https://gorest.co.in/public/v2/users",
-    "optional_headers": {"Authorization": "Bearer <your_token>"},
-    "method": "GET"
-  },
-  {
-    "tool_name": "github_user_info_tool",
-    "description": "Fetch authenticated user info from GitHub API.",
-    "args_schema": {},
-    "api_url": "https://api.github.com/user",
-    "optional_headers": {"Authorization": "token <github_token>"},
-    "method": "GET"
-  },
-  {
-    "tool_name": "spotify_user_profile_tool",
-    "description": "Fetch current user's profile from Spotify API.",
-    "args_schema": {},
-    "api_url": "https://api.spotify.com/v1/me",
-    "optional_headers": {"Authorization": "Bearer <access_token>"},
-    "method": "GET"
-  },
-  {
-    "tool_name": "weather_fetch_tool_openweathermap",
-    "description": "Fetch weather data by city name from OpenWeatherMap API.",
-    "args_schema": {"city": "str"},
-    "api_url": "https://api.openweathermap.org/data/2.5/weather?q={city}&appid=<API_KEY>",
-    "optional_headers": {"X-API-Key": "<API_KEY>"},
-    "method": "GET"
-  },
-  {
-    "tool_name": "product_search_tool_dummyjson",
-    "description": "Search products by name with pagination using DummyJSON API.",
-    "args_schema": {"query": "str", "limit": "int", "skip": "int"},
-    "api_url": "https://dummyjson.com/products/search",
-    "optional_headers": {"Content-Type": "application/json", "User-Agent": "DynamicToolAgent/1.0"},
-    "method": "GET"
-  },
 
   # ---------- POST TOOLS ----------
   {
